@@ -51,16 +51,17 @@ function mostrarMapa($mapa) {
 }
 
 // 2. Cambiar G por S
-function marcarGymbros($mapa, $listaImpactos) {
-    $mapaModificado = $mapa;
-    for ($i = 0; $i < count($listaImpactos); $i++) {
-        $fila = $listaImpactos[$i][0];
-        $columna = $listaImpactos[$i][1];
-        if (isset($mapaModificado[$fila][$columna]) && $mapaModificado[$fila][$columna] == 'G') {
-            $mapaModificado[$fila][$columna] = 'S';
+function zonaAfectada($mapa, $impactos) {
+    for ($i = 0; $i < count($impactos); $i++) {
+        $fila = $impactos[$i][0];
+        $columna = $impactos[$i][1];
+         if ($fila < count($mapa) && $columna < count($mapa[$fila])) {
+            if ($mapa[$fila][$columna] == 'G') {
+                $mapa[$fila][$columna] = 'S'; 
+            }
         }
     }
-    return $mapaModificado;
+    return $mapa;
 }
 
 // 3. Contar Sigmas
@@ -71,43 +72,45 @@ function contarSigmas($mapa) {
             if ($mapa[$i][$j] == 'S') {
                 $contadorSigmas++;
             }
+
         }
     }
-    return $contadorSigmas * 3000;
+
+    $sigmasTotales = $contadorSigmas * 3000;
+    $mililitros = $sigmasTotales * 10;
+    $litros = $mililitros / 1000;
+
+    return [$sigmasTotales,$litros];
 }
 
-// 3. Litros de bebida
-function calcularLitros($totalSigmas) {
-    return ($totalSigmas * 10) / 1000;
-}
+
 
 // 4. Mapa de daños
-function mapaDanos($mapa, $listaImpactos) {
-    $mapaDanosTotales = $mapa;
-    for ($i = 0; $i < count($listaImpactos); $i++) {
-        $fila = $listaImpactos[$i][0];
-        $columna = $listaImpactos[$i][1];
-        if (isset($mapaDanosTotales[$fila][$columna])) {
-            if ($mapaDanosTotales[$fila][$columna] == 'G') {
-                $mapaDanosTotales[$fila][$columna] = 'S';
-            } else if ($mapaDanosTotales[$fila][$columna] == '0') {
-                $mapaDanosTotales[$fila][$columna] = 'X';
-            } else if ($mapaDanosTotales[$fila][$columna] == '~') {
-                $mapaDanosTotales[$fila][$columna] = 'W';
+function mapaDanos($mapa, $impactos) {
+    for ($i = 0; $i < count($impactos); $i++) {
+        $fila = $impactos[$i][0];
+        $columna = $impactos[$i][1];
+        if (isset($mapa[$fila][$columna])) {
+            if ($mapa[$fila][$columna] == 'G') {
+                $mapa[$fila][$columna] = 'S';
+            } else if ($mapa[$fila][$columna] == '0') {
+                $mapa[$fila][$columna] = 'X';
+            } else if ($mapa[$fila][$columna] == '~') {
+                $mapa[$fila][$columna] = 'W';
             }
         }
     }
-    return $mapaDanosTotales;
+    return $mapa;
 }
 
 // 5. Costes
-function calcularCostes($mapaDanosTotales) {
+function calcularCostes($mapa) {
     $sumaCostes = 0;
-    for ($i = 0; $i < count($mapaDanosTotales); $i++) {
-        for ($j = 0; $j < count($mapaDanosTotales[$i]); $j++) {
-            if ($mapaDanosTotales[$i][$j] == 'X') {
+    for ($i = 0; $i < count($mapa); $i++) {
+        for ($j = 0; $j < count($mapa[$i]); $j++) {
+            if ($mapa[$i][$j] == 'X') {
                 $sumaCostes += 75000;
-            } else if ($mapaDanosTotales[$i][$j] == 'S') {
+            } else if ($mapa[$i][$j] == 'S') {
                 $sumaCostes += 250000;
             }
         }
@@ -129,32 +132,30 @@ function chillTotal($mapa) {
 }
 
 // 6. Chill afectado
-function chillAfectado($mapaDanosTotales) {
-    $totalChillAfectado = 0;
-    for ($i = 0; $i < count($mapaDanosTotales); $i++) {
-        for ($j = 0; $j < count($mapaDanosTotales[$i]); $j++) {
-            if ($mapaDanosTotales[$i][$j] == 'W') {
-                $totalChillAfectado++;
+function chillAfectado($mapa) {
+    $ChillAfectado = 0;
+    for ($i = 0; $i < count($mapa); $i++) {
+        for ($j = 0; $j < count($mapa[$i]); $j++) {
+            if ($mapa[$i][$j] == 'W') {
+                $ChillAfectado++;
             }
         }
     }
-    return $totalChillAfectado;
+    return $ChillAfectado;
 }
 
 // 7. Recaudación
-function calcularRecaudacion($chillTotalMetros, $chillAfectadoMetros) {
-    $horasTotales = 10000;
-    $horasLiberadas = ($chillAfectadoMetros / $chillTotalMetros) * $horasTotales;
-    $minutosLiberados = $horasLiberadas * 60;
-    return $minutosLiberados * 20;
+function calcularRecaudacion($totalChill, $ChillAfectado) {
+    $horasLib = ($ChillAfectado / $totalChill) * 10000;
+    $minutosLib = $horasLib * 60;
+    return $minutosLib * 20;
 }
 
 
 // --- LLAMADAS Y RESULTADOS (ECHOS AL FINAL) ---
 
-$mapaGymbros = marcarGymbros($mapaOriginal, $impactos);
-$totalSigmas = contarSigmas($mapaGymbros);
-$litros = calcularLitros($totalSigmas);
+$mapaGymbros = zonaAfectada($mapaOriginal, $impactos);
+$sigmasTotalesLitros = contarSigmas($mapaGymbros);
 $mapaDanosResultado = mapaDanos($mapaOriginal, $impactos);
 $costes = calcularCostes($mapaDanosResultado);
 $tChill = chillTotal($mapaOriginal);
@@ -169,8 +170,8 @@ echo "<h2>2. Zonas habitadas afectadas</h2>";
 mostrarMapa($mapaGymbros);
 
 echo "<h2>3. Población y Bebida</h2>";
-echo "Sigmas afectados: " . $totalSigmas . "<br>";
-echo "Litros necesarios: " . $litros . "<br>";
+echo "Sigmas afectados: " . $sigmasTotalesLitros[0] . "<br>";
+echo "Litros necesarios: " . $sigmasTotalesLitros[1] . "<br>";
 
 echo "<h2>4. Mapa de Daños Totales</h2>";
 mostrarMapa($mapaDanosResultado);
