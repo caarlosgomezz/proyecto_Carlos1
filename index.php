@@ -1,8 +1,5 @@
 <?php
-// Proyecto PHP: La Batalla de Aura
-// Alumno de DAW
 
-// Datos iniciales proporcionados[cite: 1]
 $mapaOriginal = [
     ['~', '~', '~', '~', '~', '0', '0', 'G', '0', 'G', '0', '0', 'G', '0', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~'],
     ['~', '~', '~', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~'],
@@ -29,6 +26,7 @@ $mapaOriginal = [
     ['~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~', '~'],
 ];
 
+
 $impactos = [
     [2, 9], [3, 10], [5, 4], [11, 15], [14, 4], [17, 4], [1, 5], [3, 8], [6, 12], [8, 14], 
     [10, 3], [0, 2], [1, 20], [8, 2], [21, 5], [22, 10], [0, 0], [0, 1], [0, 3], [0, 4], 
@@ -38,9 +36,6 @@ $impactos = [
     [2, 20], [2, 21]
 ];
 
-// --- FUNCIONES ---
-
-// 1. Mostrar mapa
 function mostrarMapa($mapa) {
     for ($i = 0; $i < count($mapa); $i++) {
         for ($j = 0; $j < count($mapa[$i]); $j++) {
@@ -50,7 +45,7 @@ function mostrarMapa($mapa) {
     }
 }
 
-// 2. Cambiar G por S
+
 function zonaAfectada($mapa, $impactos) {
     for ($i = 0; $i < count($impactos); $i++) {
         $fila = $impactos[$i][0];
@@ -64,7 +59,7 @@ function zonaAfectada($mapa, $impactos) {
     return $mapa;
 }
 
-// 3. Contar Sigmas
+
 function contarSigmas($mapa) {
     $contadorSigmas = 0;
     for ($i = 0; $i < count($mapa); $i++) {
@@ -84,13 +79,11 @@ function contarSigmas($mapa) {
 }
 
 
-
-// 4. Mapa de daños
 function mapaDanos($mapa, $impactos) {
     for ($i = 0; $i < count($impactos); $i++) {
         $fila = $impactos[$i][0];
         $columna = $impactos[$i][1];
-        if (isset($mapa[$fila][$columna])) {
+        if ($fila < count($mapa) && $columna < count($mapa[$fila])) {
             if ($mapa[$fila][$columna] == 'G') {
                 $mapa[$fila][$columna] = 'S';
             } else if ($mapa[$fila][$columna] == '0') {
@@ -101,9 +94,10 @@ function mapaDanos($mapa, $impactos) {
         }
     }
     return $mapa;
+
 }
 
-// 5. Costes
+
 function calcularCostes($mapa) {
     $sumaCostes = 0;
     for ($i = 0; $i < count($mapa); $i++) {
@@ -118,7 +112,7 @@ function calcularCostes($mapa) {
     return $sumaCostes;
 }
 
-// 6. Chill total
+
 function chillTotal($mapa) {
     $totalChill = 0;
     for ($i = 0; $i < count($mapa); $i++) {
@@ -131,7 +125,7 @@ function chillTotal($mapa) {
     return $totalChill;
 }
 
-// 6. Chill afectado
+
 function chillAfectado($mapa) {
     $ChillAfectado = 0;
     for ($i = 0; $i < count($mapa); $i++) {
@@ -144,7 +138,7 @@ function chillAfectado($mapa) {
     return $ChillAfectado;
 }
 
-// 7. Recaudación
+
 function calcularRecaudacion($totalChill, $ChillAfectado) {
     $horasLib = ($ChillAfectado / $totalChill) * 10000;
     $minutosLib = $horasLib * 60;
@@ -152,7 +146,7 @@ function calcularRecaudacion($totalChill, $ChillAfectado) {
 }
 
 
-// --- LLAMADAS Y RESULTADOS (ECHOS AL FINAL) ---
+
 
 $mapaGymbros = zonaAfectada($mapaOriginal, $impactos);
 $sigmasTotalesLitros = contarSigmas($mapaGymbros);
@@ -177,18 +171,12 @@ echo "<h2>4. Mapa de Daños Totales</h2>";
 mostrarMapa($mapaDanosResultado);
 
 echo "<h2>5. Costes de Reparación</h2>";
-echo "Coste total: " . number_format($costes, 2, ',', '.') . " €<br>";
+echo "Coste total: " . $costes . " €<br>";
 
 echo "<h2>6. Zonas de Chill</h2>";
 echo "Chill total: " . $tChill . " m²<br>";
 echo "Chill afectado: " . $aChill . " m²<br>";
 
 echo "<h2>7. Recaudación y Balance</h2>";
-echo "Recaudación: " . number_format($recaudacion, 2, ',', '.') . " €<br>";
-
-if ($diferencia >= 0) {
-    echo "Balance: Sobran " . number_format($diferencia, 2, ',', '.') . " €";
-} else {
-    echo "Balance: Faltan " . number_format($diferencia * -1, 2, ',', '.') . " €";
-}
-?>
+echo "Recaudación: " . $recaudacion . " €<br>";
+echo "Diferencia: " . $diferencia . " €";
